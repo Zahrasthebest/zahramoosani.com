@@ -155,6 +155,39 @@
     margin-bottom: 6px;
   }
 
+  .skill-bubbles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .skill-bubbles .bubble {
+    background: var(--chip);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 13px;
+    font-size: 12px;
+    color: var(--ink);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .skill-bubbles .bubble:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  /* ---------- General scroll reveal ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   /* ---------- Socials ---------- */
   .socials {
     display: flex;
@@ -209,9 +242,22 @@
     padding: 10px 0 20px;
   }
 
-  .photo {
+  /* ---------- Scroll reveal wrapper ---------- */
+  .photo-reveal {
     width: 260px;
     margin: 16px -4px 46px;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .photo-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .photo {
+    width: 100%;
     background: #FFFFFF;
     padding: 8px 8px 0;
     box-shadow: 0 4px 10px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.1);
@@ -227,12 +273,12 @@
     z-index: 20;
   }
 
-  .photo:nth-child(6n+1) { transform: rotate(-7deg) translateY(2px); z-index: 1; }
-  .photo:nth-child(6n+2) { transform: rotate(5deg) translateY(-3px); z-index: 3; }
-  .photo:nth-child(6n+3) { transform: rotate(-3deg) translateY(4px); z-index: 2; }
-  .photo:nth-child(6n+4) { transform: rotate(6deg) translateY(-2px); z-index: 4; }
-  .photo:nth-child(6n+5) { transform: rotate(-5deg) translateY(3px); z-index: 2; }
-  .photo:nth-child(6n+6) { transform: rotate(4deg) translateY(-2px); z-index: 3; }
+  .photo-reveal:nth-child(6n+1) .photo { transform: rotate(-7deg) translateY(2px); z-index: 1; }
+  .photo-reveal:nth-child(6n+2) .photo { transform: rotate(5deg) translateY(-3px); z-index: 3; }
+  .photo-reveal:nth-child(6n+3) .photo { transform: rotate(-3deg) translateY(4px); z-index: 2; }
+  .photo-reveal:nth-child(6n+4) .photo { transform: rotate(6deg) translateY(-2px); z-index: 4; }
+  .photo-reveal:nth-child(6n+5) .photo { transform: rotate(-5deg) translateY(3px); z-index: 2; }
+  .photo-reveal:nth-child(6n+6) .photo { transform: rotate(4deg) translateY(-2px); z-index: 3; }
 
   .photo .frame {
     aspect-ratio: 1 / 1;
@@ -258,12 +304,116 @@
   }
 
   @media (max-width: 480px) {
-    .photo { width: 70%; margin: 10px -6px 26px; }
+    .photo-reveal { width: 70%; margin: 10px -6px 26px; }
     header { flex-direction: column; }
     .clocks { text-align: left; }
   }
 
   /* ---------- Footer ---------- */
+  /* ---------- Lightbox ---------- */
+  .photo .frame {
+    cursor: pointer;
+  }
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 16, 16, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s ease;
+    z-index: 100;
+  }
+
+  .lightbox.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .lightbox-inner {
+    max-width: 560px;
+    width: 100%;
+    background: #FFFFFF;
+    padding: 14px 14px 20px;
+    border-radius: 3px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    transform: scale(0.85) translateY(24px);
+    opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+  }
+
+  .lightbox.open .lightbox-inner {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+
+  .lightbox-inner img {
+    width: 100%;
+    display: block;
+    border-radius: 2px;
+  }
+
+  .lightbox-caption {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-align: center;
+    padding-top: 12px;
+  }
+
+  /* ---------- Loading screen ---------- */
+  #loading-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--paper);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    transition: opacity 0.7s ease;
+  }
+
+  #loading-screen.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #loading-screen img {
+    width: 90px;
+    height: 90px;
+    border-radius: 14px;
+    animation: heartbeat 1.8s ease-in-out 2;
+  }
+
+  #loading-screen .loading-text {
+    font-family: 'Lora', serif;
+    font-size: 17px;
+    color: var(--ink-soft);
+    text-align: center;
+    opacity: 0;
+    animation: fadeInText 0.8s ease 1.1s forwards;
+  }
+
+  @keyframes heartbeat {
+    0%   { transform: scale(1); }
+    14%  { transform: scale(1.18); }
+    28%  { transform: scale(1); }
+    42%  { transform: scale(1.18); }
+    70%  { transform: scale(1); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes fadeInText {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
   footer {
     margin-top: 56px;
     font-family: 'JetBrains Mono', monospace;
@@ -275,6 +425,10 @@
 </style>
 </head>
 <body>
+<div id="loading-screen">
+  <img src="data:image/png;base64,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" alt="logo">
+  <div class="loading-text">Hey it's Zahra! I'm so glad you're here</div>
+</div>
 <div class="wrap">
 
   <header>
@@ -296,22 +450,23 @@
   <nav>
     <a href="index.html" class="current">about</a>
     <a href="projects.html">impact</a>
+    <a href="work.html">projects</a>
   </nav>
 
   <div class="bio">
-    <p>I'm a first-generation Pakistani American girl from Chicago, IL.</p>
-    <p>I'm a freshman @<a href="https://www.wisc.edu" target="_blank" rel="noopener">UW-Madison</a> studying Computer Engineering.</p>
-    <p>I'm passionate about using technology to serve others, and the connections between humanity, technology, feelings, & learning.</p>
-    <p>I'm interested in all things accessibility, user interface, user experience, and human-centered design, as well as artificial intelligence, machine learning, and business.</p>
-    <p>Please reach out to me at <a href="mailto:moosani@wisc.edu">moosani@wisc.edu</a>! I'd love to chat with you :)</p>
+    <p class="reveal">I'm a first-generation Pakistani American girl from Chicago, IL.</p>
+    <p class="reveal">I'm a freshman @<a href="https://www.wisc.edu" target="_blank" rel="noopener">UW-Madison</a> studying Computer Engineering.</p>
+    <p class="reveal">I'm passionate about using technology to serve others, and the connections between humanity, technology, feelings, & learning.</p>
+    <p class="reveal">I'm interested in all things accessibility, user interface, user experience, and human-centered design, as well as artificial intelligence, machine learning, and business.</p>
+    <p class="reveal">Please reach out to me at <a href="mailto:moosani@wisc.edu">moosani@wisc.edu</a>! I'd love to chat with you :)</p>
   </div>
 
-  <div class="tag-list">
+  <div class="tag-list reveal">
     <span class="label">Skills / tools:</span>
-    AutoCAD, Adobe Illustrator, Data Analysis, Project Management, Team Leadership, Programming (HTML, Python, Java, C++).
+    <div class="skill-bubbles" id="skillBubbles"></div>
   </div>
 
-  <div class="socials">
+  <div class="socials reveal">
     <a class="social-icon" href="https://mail.google.com/mail/?view=cm&fs=1&to=moosani@wisc.edu" title="Email" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -332,7 +487,7 @@
         <circle cx="4" cy="4" r="2"></circle>
       </svg>
     </a>
-    <a class="social-icon" href="https://github.com/Zahrasthebest" title="GitHub" target="_blank" rel="noopener">
+    <a class="social-icon" href="https://github.com/zahramoo" title="GitHub" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
       </svg>
@@ -347,8 +502,15 @@
          style="background-image:url('img/yourfile.jpg')" -->
   </div>
 
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-inner">
+      <img id="lightboxImg" src="" alt="">
+      <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+  </div>
+
   <footer>
-    Thanks for stopping by! &nbsp;·&nbsp; © 2026 Zahra Moosani, xoxo
+    Thanks for stopping by! &nbsp;·&nbsp; Last updated August 2026 &nbsp;·&nbsp; © 2026 Zahra Moosani, xoxo
   </footer>
 
 </div>
@@ -375,8 +537,11 @@
   const phrases = [
     "Hello World, I'm Zahra!",
     "ہیلو ورلڈ، میں زہرا ہوں!",
+    "¡Hola Mundo, soy Zahra!",
     "हैलो वर्ल्ड, मैं ज़हरा हूँ!",
-    "مرحباً أيها العالم، أنا زهراء!"
+    "Bonjour le Monde, je suis Zahra !",
+    "مرحباً أيها العالم، أنا زهراء!",
+    "Hallo Welt, ich bin Zahra!"
   ];
   const twEl = document.getElementById('typewriter');
   let phraseIndex = 0, charIndex = 0, deleting = false;
@@ -387,7 +552,7 @@
       charIndex++;
       if (charIndex > current.length) {
         deleting = true;
-        setTimeout(typeLoop, 1400); // pause before deleting
+        setTimeout(typeLoop, 2600); // pause before deleting
         twEl.innerHTML = current + '<span class="cursor">&nbsp;</span>';
         return;
       }
@@ -399,7 +564,7 @@
       }
     }
     twEl.innerHTML = current.slice(0, charIndex) + '<span class="cursor">&nbsp;</span>';
-    setTimeout(typeLoop, deleting ? 40 : 70);
+    setTimeout(typeLoop, deleting ? 55 : 110);
   }
   typeLoop();
 
@@ -432,6 +597,9 @@
   ];
   const grid = document.getElementById('photoGrid');
   photos.forEach(p => {
+    const wrap = document.createElement('div');
+    wrap.className = 'photo-reveal';
+
     const div = document.createElement('div');
     div.className = 'photo';
     if (p.img) {
@@ -451,8 +619,73 @@
         <span class="photo-caption">${p.cap}</span>
       `;
     }
-    grid.appendChild(div);
+    if (p.img) {
+      div.querySelector('.frame').addEventListener('click', () => openLightbox(p.img, p.cap));
+    }
+    wrap.appendChild(div);
+    grid.appendChild(wrap);
   });
+
+  // ----- fade-in reveal for photos as they scroll into view -----
+  const photoRevealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 70);
+        photoRevealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.photo-reveal').forEach(el => photoRevealObserver.observe(el));
+
+  // ----- lightbox: slow fade + scale pop-up on click -----
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxCaption = document.getElementById('lightboxCaption');
+
+  function openLightbox(src, cap) {
+    lightboxImg.src = src;
+    lightboxCaption.textContent = cap;
+    lightbox.classList.add('open');
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+  }
+
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  // ----- skill bubbles -----
+  const skills = ['AutoCAD', 'Adobe Illustrator', 'Data Analysis', 'Project Management', 'Team Leadership', 'HTML', 'Python', 'Java', 'C++'];
+  const skillContainer = document.getElementById('skillBubbles');
+  skills.forEach(skill => {
+    const span = document.createElement('span');
+    span.className = 'bubble';
+    span.textContent = skill;
+    skillContainer.appendChild(span);
+  });
+
+  // ----- general scroll reveal for bio / skills / socials -----
+  const revealEls = document.querySelectorAll('.reveal');
+  const generalRevealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 60);
+        generalRevealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => generalRevealObserver.observe(el));
+
+  // ----- loading screen: heartbeat pulse + subheading, then fade out -----
+  setTimeout(() => {
+    document.getElementById('loading-screen').classList.add('hide');
+  }, 4000);
 </script>
 
 </body>
